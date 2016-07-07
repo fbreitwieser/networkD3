@@ -24,11 +24,11 @@ Depends:
     R (>= 3.0.0)
 Imports:
     htmlwidgets (>= 0.3.2),
-    magrittr
+    magrittr,
+    igraph
 Suggests:
     htmltools (>= 0.2.6),
-    jsonlite,
-    igraph
+    jsonlite
 Enhances: knitr, shiny
 LazyData: true
 RoxygenNote: 5.0.1
