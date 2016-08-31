@@ -67,16 +67,22 @@ simpleNetwork <- function(Data,
                           opacity = 0.6,
                           zoom = F)
 {
-  # validate input
+    # validate input
     if (!is.data.frame(Data))
         stop("data must be a data frame class object.")
 
-  # create links data
+    # If tbl_df convert to plain data.frame
+    Data <- tbl_df_strip(Data)
+
+    # create links data
     if (is.null(Source) && is.null(Target))
         links <- Data[, 1:2]
     else if (!is.null(Source) && !is.null(Target))
         links <- data.frame(Data[, Source], Data[, Target])
     names(links) <- c("source", "target")
+
+    # Check if data is zero indexed
+    check_zero(links[, 'source'], links[, 'target'])
 
     # create options
     options = list(

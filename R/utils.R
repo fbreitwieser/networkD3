@@ -116,20 +116,20 @@ margin_handler <- function(margin){
 #' @examples
 #' # Load igraph
 #' library(igraph)
-#' 
+#'
 #' # Use igraph to make the graph and find membership
 #' karate <- make_graph("Zachary")
 #' wc <- cluster_walktrap(karate)
 #' members <- membership(wc)
-#' 
+#'
 #' # Convert to object suitable for networkD3
 #' karate_d3 <- igraph_to_networkD3(karate, group = members)
-#' 
+#'
 #' # Create force directed network plot
-#' forceNetwork(Links = karate_d3$links, Nodes = karate_d3$nodes, 
-#'              Source = 'source', Target = 'target', NodeID = 'name', 
+#' forceNetwork(Links = karate_d3$links, Nodes = karate_d3$nodes,
+#'              Source = 'source', Target = 'target', NodeID = 'name',
 #'              Group = 'group')
-#' 
+#'
 #' \dontrun{
 #' # Example with data from data frame
 #' # Load data
@@ -189,7 +189,13 @@ igraph_to_networkD3 <- function(g, group, what = 'both') {
     links <- as_data_frame(g, what = 'edges')
     links <- merge(links, temp_nodes, by.x = 'from', by.y = 'name')
     links <- merge(links, temp_nodes, by.x = 'to', by.y = 'name')
-    links <- links[, c('id.x', 'id.y')] %>% setNames(c('source', 'target'))
+    if (ncol(links) == 5) {
+        links <- links[, c(4:5, 3)] %>%
+                      setNames(c('source', 'target', 'value'))
+    }
+    else {
+        links <- links[, c('id.x', 'id.y')] %>% setNames(c('source', 'target'))
+    }
 
     # Output requested object
     if (what == 'both') {
@@ -201,4 +207,32 @@ igraph_to_networkD3 <- function(g, group, what = 'both') {
     else if (what == 'nodes') {
       return(nodes)
     }
+}
+
+#' Check if data is 0 indexed
+#' @keywords internal
+#' @noRd
+
+check_zero <- function(Source, Target) {
+    if (!is.factor(Source) && !is.factor(Target)) {
+        SourceTarget <- c(Source, Target)
+        if (is.numeric(SourceTarget) | is.integer(SourceTarget)) {
+            if (!(0 %in% SourceTarget))
+                warning(
+                    'It looks like Source/Target is not zero-indexed. This is required in JavaScript and so your plot may not render.',
+                    call. = FALSE)
+        }
+    }
+}
+
+#' Convert dplyr created tbl_df to plain data.frame
+#' @noRd
+
+tbl_df_strip <- function(x) {
+    if('tbl_df' %in% class(x)) {
+        message(paste(deparse(substitute(x)),
+                      'is a tbl_df. Converting to a plain data frame.'))
+        x <- base::as.data.frame(x)
+    }
+    return(x)
 }

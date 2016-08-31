@@ -49,6 +49,7 @@
 #' URL <- paste0('https://cdn.rawgit.com/christophergandrud/networkD3/',
 #'               'master/JSONdata/energy.json')
 #' energy <- jsonlite::fromJSON(URL)
+#' 
 #' # Plot
 #' sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
 #'              Target = 'target', Value = 'value', NodeID = 'name',
@@ -59,8 +60,8 @@
 #'                                energy$nodes[energy$links$source + 1, 'name'])
 #'
 #' sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
-#' Target = 'target', Value = 'value', NodeID = 'name',
-#' LinkGroup = 'energy_type', NodeGroup = NULL)
+#'              Target = 'target', Value = 'value', NodeID = 'name',
+#'              LinkGroup = 'energy_type', NodeGroup = NULL)
 #'
 #' }
 #' @source
@@ -77,8 +78,15 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
     fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL, 
     height = NULL, width = NULL, iterations = 32, sinksRight = TRUE) 
 {
+    # Check if data is zero indexed
+    check_zero(Links[, Source], Links[, Target])
+    
     # Hack for UI consistency. Think of improving.
     colourScale <- as.character(colourScale)
+    
+    # If tbl_df convert to plain data.frame
+    Links <- tbl_df_strip(Links)
+    Nodes <- tbl_df_strip(Nodes)
     
     # Subset data frames for network graph
     if (!is.data.frame(Links)) {

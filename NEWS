@@ -1,6 +1,29 @@
 # All changes to networkD3 are documented here.
 
+## Version 0.2.13
+
+- `simpleNetwork`, `forceNetwork`, and `sankeyNetwork` should now work with 
+`tbl_df` link and node data frames. Thanks to @mexindian for suggesting.
+
+## Version 0.2.12
+
+- Add resize to sankeyNetwork for flexdashboard. Thanks to Kenton Russell for
+adding.
+
+- Fixed a bug where `Source` and `Target` labels were not properly concatenated
+in `sankeyNetwork` tooltips. Thanks to Tuija Sonkkila for reporting.
+
+- Improved `igraph_to_networkD3` so that it now handles more general weight 
+names. Thanks to Maurits Evers for reporting.
+
 ## Version 0.2.11
+
+- `forceNetwork`, `simpleNetwork`, and `sankeyNetwork` generate errors if data
+does not appear to be zero-indexed. Thanks to Peter Meissner for prompting this
+addition.
+
+- Bug fix for `igraph_to_networkD3` so that it now accepts the value attribute.
+Thanks to Louis Goddard.
 
 - Bug fix for `diagonalNetwork` when using hierarchical lists with singular
 connections. Thanks to @RohdeK. 
