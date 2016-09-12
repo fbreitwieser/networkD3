@@ -28,6 +28,7 @@
 #' @param fontFamily font family for the node text labels.
 #' @param nodeWidth numeric width of each node.
 #' @param nodePadding numeric essentially influences the width height.
+#' @param nodeStrokeWidth numeric width of the stroke around nodes.
 #' @param margin an integer or a named \code{list}/\code{vector} of integers
 #' for the plot margins. If using a named \code{list}/\code{vector},
 #' the positions \code{top}, \code{right}, \code{bottom}, \code{left}
@@ -41,6 +42,8 @@
 #' browser on the client so don't push it too high.
 #' @param sinksRight boolean. If \code{TRUE}, the last nodes are moved to the 
 #' right border of the plot.
+#' @param zoom logical value to enable (\code{TRUE}) or disable (\code{FALSE})
+#' zooming
 #'
 #' @examples
 #' \dontrun{
@@ -74,9 +77,9 @@
 
 sankeyNetwork <- function(Links, Nodes, Source, Target, Value, 
     NodeID, NodeGroup = NodeID, LinkGroup = NULL, units = "", 
-    colourScale = JS("d3.scale.category20()"), fontSize = 7, 
-    fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL, 
-    height = NULL, width = NULL, iterations = 32, sinksRight = TRUE) 
+    colourScale = JS("d3.scale.category20()"), fontSize = 7,  fontFamily = NULL, 
+    nodeWidth = 15, nodePadding = 10, nodeStrokeWidth = 1, margin = NULL, 
+    height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, zoom = FALSE) 
 {
     # Check if data is zero indexed
     check_zero(Links[, Source], Links[, Target])
@@ -131,8 +134,8 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
     # create options
     options = list(NodeID = NodeID, NodeGroup = NodeGroup, LinkGroup = LinkGroup, 
         colourScale = colourScale, fontSize = fontSize, fontFamily = fontFamily, 
-        nodeWidth = nodeWidth, nodePadding = nodePadding, units = units, 
-        margin = margin, iterations = iterations, sinksRight = sinksRight)
+        nodeWidth = nodeWidth, nodePadding = nodePadding, nodeStrokeWidth = nodeStrokeWidth,
+        units = units, margin = margin, iterations = iterations, sinksRight = sinksRight, zoom = zoom)
     
     # create widget
     htmlwidgets::createWidget(name = "sankeyNetwork", x = list(links = LinksDF, 

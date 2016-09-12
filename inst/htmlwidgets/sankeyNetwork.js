@@ -66,8 +66,11 @@ HTMLWidgets.widget({
         var width = el.getBoundingClientRect().width - margin.right - margin.left;
         var height = el.getBoundingClientRect().height - margin.top - margin.bottom;
 
-        var color = eval(options.colourScale);
+        // set this up even if zoom = F
+        var zoom = d3.behavior.zoom();    
 
+        var color = eval(options.colourScale);
+        
         var color_node = function color_node(d){
           if (d.group){
             return color(d.group.replace(/ .*/, ""));
@@ -103,16 +106,36 @@ HTMLWidgets.widget({
             .size([width, height])
             .nodeWidth(options.nodeWidth)
             .nodePadding(options.nodePadding)
-            .layout(options.iterations)
-            .sinksRight(options.sinksRight);
+            .sinksRight(options.sinksRight)
+            .layout(options.iterations);
 
-        // select the svg element and remove existing children
-        d3.select(el).select("svg").selectAll("*").remove();
-        // remove any previously set viewBox attribute
-        d3.select(el).select("svg").attr("viewBox", null);
+        // select the svg element and remove existing children or previously set viewBox attribute
+        var svg = d3.select(el).select("svg");
+        svg.selectAll("*").remove();
+        svg.attr("viewBox", null);
+        
         // append g for our container to transform by margin
-        var svg = d3.select(el).select("svg").append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+        svg = svg
+                .append("g").attr("class","zoom-layer")
+                .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+                
+        // add zooming if requested
+        if (options.zoom) {
+          zoom.on("zoom", redraw)
+          function redraw() {
+            d3.select(el).select(".zoom-layer").attr("transform",
+            "translate(" + d3.event.translate + ")"+
+            " scale(" + d3.event.scale + ")");
+          }
+      
+          d3.select(el).select("svg")
+            .attr("pointer-events", "all")
+            .call(zoom);
+  
+        } else {
+          zoom.on("zoom", null);
+ 
+        }
 
         // draw path
         var path = sankey.link();
@@ -178,6 +201,7 @@ HTMLWidgets.widget({
             .style("fill", function(d) {
                 return d.color = color_node(d); })
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+            .style("stroke-width", options.nodeStrokeWidth)
             .style("opacity", 0.9)
             .style("cursor", "move")
             .append("title")
@@ -193,7 +217,7 @@ HTMLWidgets.widget({
             .text(function(d) { return d.name; })
             .style("font-size", options.fontSize + "px")
             .style("font-family", options.fontFamily ? options.fontFamily : "inherit")
-            .filter(function(d) { return d.x < width / 2; })
+            .filter(function(d) { return d.x < width / 2 || !options.sinksRight; })
             .attr("x", 6 + sankey.nodeWidth())
             .attr("text-anchor", "start");
 
