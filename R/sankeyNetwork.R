@@ -22,6 +22,10 @@
 #' \code{Links}. Used to color the links in the network.
 #' @param NodeDepth character specifying a column in the \code{Nodes} data
 #' frame that specifies the 0-based ordering of the nodes along the x-axis.
+#' @param NodeValue character specifying a column in the \code{Nodes} data
+#' frame with the value/size of each node. If \code{NULL}, the value is 
+#' calculated based on the maximum of the sum of incoming and outoging 
+#' links
 #' @param units character string describing physical units (if any) for Value
 #' @param colourScale character string specifying the categorical colour
 #' scale for the nodes. See
@@ -80,7 +84,8 @@
 #' @export
 
 sankeyNetwork <- function(Links, Nodes, Source, Target, Value, 
-    NodeID, NodeGroup = NodeID, LinkGroup = NULL, NodeDepth = NULL, units = "", 
+    NodeID, NodeGroup = NodeID, LinkGroup = NULL, NodeDepth = NULL, NodeValue = NULL,
+    units = "", 
     colourScale = JS("d3.scale.category20()"), fontSize = 7,  fontFamily = NULL, 
     nodeWidth = 15, nodePadding = 10, nodeStrokeWidth = 1, margin = NULL, 
     height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, zoom = FALSE,
@@ -122,8 +127,7 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
     # if NodeID is missing assume NodeID is the first column
     if (missing(NodeID)) 
         NodeID = 1
-    NodesDF <- data.frame(Nodes[, NodeID])
-    names(NodesDF) <- c("name")
+    NodesDF <- data.frame(name=Nodes[, NodeID], stringsAsFactors = FALSE)
     
     # add node group if specified
     if (is.character(NodeGroup)) {
@@ -133,11 +137,15 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
     if (is.character(NodeDepth)) {
         NodesDF$depth <- Nodes[, NodeDepth]
     }
+
+    if (is.character(NodeValue)) {
+        NodesDF$value <- Nodes[, NodeValue]
+    }
     
     if (is.character(LinkGroup)) {
         LinksDF$group <- Links[, LinkGroup]
     }
-    
+
     margin <- margin_handler(margin)
     
     # create options

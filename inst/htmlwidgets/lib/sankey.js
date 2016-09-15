@@ -51,6 +51,7 @@ d3.sankey = function() {
  };
 
   sankey.layout = function(iterations) {
+
     computeNodeLinks();
     computeNodeValues();
     computeNodeBreadths();
@@ -138,12 +139,14 @@ d3.sankey = function() {
 
   // Compute the value (size) of each node by summing the associated links.
   function computeNodeValues() {
-    nodes.forEach(function(node) {
-      node.value = Math.max(
-        d3.sum(node.sourceLinks, value),
-        d3.sum(node.targetLinks, value)
-      );
-    });
+    if (typeof nodes[0].value == "undefined") {
+      nodes.forEach(function(node) {
+        node.value = Math.max(
+          d3.sum(node.sourceLinks, value),
+          d3.sum(node.targetLinks, value)
+        );
+      });
+    }
   }
 
   var max_depth = 0
@@ -297,9 +300,7 @@ d3.sankey = function() {
         var nodes_to_right = 0;
         node.sourceLinks.forEach(function(n) {
           nodes_to_right = Math.max(nodes_to_right,n.target.sourceLinks.length)
-          //console.log(node.name,n)
         })
-         //console.log(node.name,nodes_to_right)
          if (nodes_to_right==0)node.x = x - 2;
       }
       
@@ -344,6 +345,7 @@ d3.sankey = function() {
             }
         }
     }
+
     // Group nodes by breath.
     //var nodesByBreadth = d3.nest()
     //    .key(function(d) { return d.x; })

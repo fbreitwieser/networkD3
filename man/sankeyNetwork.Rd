@@ -9,7 +9,7 @@ specifically for Sankey diagrams \url{http://bost.ocks.org/mike/sankey/}.
 }
 \usage{
 sankeyNetwork(Links, Nodes, Source, Target, Value, NodeID, NodeGroup = NodeID,
-  LinkGroup = NULL, NodeDepth = NULL, units = "",
+  LinkGroup = NULL, NodeDepth = NULL, NodeValue = NULL, units = "",
   colourScale = JS("d3.scale.category20()"), fontSize = 7,
   fontFamily = NULL, nodeWidth = 15, nodePadding = 10,
   nodeStrokeWidth = 1, margin = NULL, height = NULL, width = NULL,
@@ -46,6 +46,11 @@ data frame. Must be 0-indexed.}
 
 \item{NodeDepth}{character specifying a column in the \code{Nodes} data
 frame that specifies the 0-based ordering of the nodes along the x-axis.}
+
+\item{NodeValue}{character specifying a column in the \code{Nodes} data
+frame with the value/size of each node. If \code{NULL}, the value is 
+calculated based on the maximum of the sum of incoming and outoging 
+links}
 
 \item{units}{character string describing physical units (if any) for Value}
 
