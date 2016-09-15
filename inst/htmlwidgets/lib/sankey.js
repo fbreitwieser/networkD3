@@ -298,14 +298,42 @@ d3.sankey = function() {
 
   // Compute the depth (y-position) for each node.
   function computeNodeDepths(iterations) {
-    // Group nodes by breath.
-    var nodesByBreadth = d3.nest()
-        .key(function(d) { return d.x; })
-        .sortKeys(d3.ascending)
-        .entries(nodes)
-        .map(function(d) { return d.values; });
 
-    //
+    var more_nodes = nodes;
+    var nodesByBreadth = new Array(max_depth);
+    for (i=0; i < nodesByBreadth.length; ++i) {
+        nodesByBreadth[i] = [];
+    }
+    // Add 'invisible' nodes to account for different depths
+    for (depth=0; depth < max_depth; ++depth) {
+        for (j=0; j < nodes.length; ++j) {
+            if (nodes[j].depth != depth) {
+                continue;
+            }
+            node = nodes[j];
+            nodesByBreadth[depth].push(node);
+            if (node.sourceLinks.length && node.sourceLinks[0].target.depth > node.depth +1) {
+                for (new_node_depth=node.depth+1; new_node_depth < node.sourceLinks[0].target.depth; ++new_node_depth) {
+                    var new_node = node.constructor();
+                    new_node.depth = new_node_depth;
+                    new_node.dy = node.dy;
+                    new_node.y = node.y;
+                    new_node.value = node.value;
+                    new_node.path = node.path;
+                    new_node.sourceLinks = node.sourceLinks;
+                    new_node.targetLinks = node.targetLinks;
+                    nodesByBreadth[new_node_depth].push(new_node);
+                }
+            }
+        }
+    }
+    // Group nodes by breath.
+    //var nodesByBreadth = d3.nest()
+    //    .key(function(d) { return d.x; })
+    //    .sortKeys(d3.ascending)
+    //    .entries(nodes)
+    //    .map(function(d) { return d.values; });
+
     initializeNodeDepth();
     resolveCollisions();
     computeLinkDepths();
