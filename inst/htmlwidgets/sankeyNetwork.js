@@ -215,6 +215,8 @@ HTMLWidgets.widget({
             .on("mouseout", function(d) {
                 link.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
                 .style("stroke-opacity", opacity_link);
+            .on("click", function(d) {
+                Shiny.onInputChange(el.id + '_clicked', d.name)
             });
         // note: u2192 is right-arrow
         link.append("title")
