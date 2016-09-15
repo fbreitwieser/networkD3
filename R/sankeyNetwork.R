@@ -20,6 +20,8 @@
 #' \code{Nodes}. Used to color the nodes in the network.
 #' @param LinkGroup character string specifying the groups in the
 #' \code{Links}. Used to color the links in the network.
+#' @param NodeDepth character specifying a column in the \code{Nodes} data
+#' frame that specifies the 0-based ordering of the nodes along the x-axis.
 #' @param units character string describing physical units (if any) for Value
 #' @param colourScale character string specifying the categorical colour
 #' scale for the nodes. See
@@ -44,6 +46,8 @@
 #' right border of the plot.
 #' @param zoom logical value to enable (\code{TRUE}) or disable (\code{FALSE})
 #' zooming
+#' @param bezierLink logical values if the links should be rendered by 
+#' bezier curves, or just trapzoids.
 #'
 #' @examples
 #' \dontrun{
@@ -76,10 +80,11 @@
 #' @export
 
 sankeyNetwork <- function(Links, Nodes, Source, Target, Value, 
-    NodeID, NodeGroup = NodeID, NodeDepth = NULL, LinkGroup = NULL, units = "", 
+    NodeID, NodeGroup = NodeID, LinkGroup = NULL, NodeDepth = NULL, units = "", 
     colourScale = JS("d3.scale.category20()"), fontSize = 7,  fontFamily = NULL, 
     nodeWidth = 15, nodePadding = 10, nodeStrokeWidth = 1, margin = NULL, 
-    height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, zoom = FALSE) 
+    height = NULL, width = NULL, iterations = 32, sinksRight = TRUE, zoom = FALSE,
+    bezierLink = TRUE) 
 {
     # Check if data is zero indexed
     check_zero(Links[, Source], Links[, Target])
@@ -139,7 +144,8 @@ sankeyNetwork <- function(Links, Nodes, Source, Target, Value,
     options = list(NodeID = NodeID, NodeGroup = NodeGroup, LinkGroup = LinkGroup, 
         colourScale = colourScale, fontSize = fontSize, fontFamily = fontFamily, 
         nodeWidth = nodeWidth, nodePadding = nodePadding, nodeStrokeWidth = nodeStrokeWidth,
-        units = units, margin = margin, iterations = iterations, sinksRight = sinksRight, zoom = zoom)
+        units = units, margin = margin, iterations = iterations, sinksRight = sinksRight, 
+        zoom = zoom, bezierLink = bezierLink)
     
     # create widget
     htmlwidgets::createWidget(name = "sankeyNetwork", x = list(links = LinksDF, 

@@ -46,7 +46,6 @@ HTMLWidgets.widget({
         var links = HTMLWidgets.dataframeToD3(x.links);
         var nodes = HTMLWidgets.dataframeToD3(x.nodes);
 
-
         // margin handling
         //   set our default margin to be 20
         //   will override with x.options.margin if provided
@@ -104,6 +103,7 @@ HTMLWidgets.widget({
             .nodes(d3.values(nodes))
             .links(links)
             .size([width, height])
+            .bezierLink(options.bezierLink)
             .nodeWidth(options.nodeWidth)
             .nodePadding(options.nodePadding)
             .sinksRight(options.sinksRight)
@@ -170,12 +170,21 @@ HTMLWidgets.widget({
         link.enter().append("path")
             .attr("class", "link")
 
+        if (options.bezierLink) {
+          link
+              .attr("d", path)
+              .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+              .style("fill", "none")
+              .style("stroke", color_link)
+              .style("stroke-opacity", opacity_link);
+        } else {
+          link
+              .attr("d", path)
+              .style("fill", color_link)
+              .style("fill-opacity", opacity_link);
+        }
+
         link
-            .attr("d", path)
-            .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-            .style("fill", "none")
-            .style("stroke", color_link)
-            .style("stroke-opacity", opacity_link)
             .sort(function(a, b) { return b.dy - a.dy; })
             .on("mouseover", function(d) {
                 d3.select(this)
@@ -210,11 +219,14 @@ HTMLWidgets.widget({
             .on("drag", dragmove))
             .on("mouseover", function(d) {
                 link.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
-                 .style("stroke-opacity", function(d){return opacity_link(d) + 0.3});
+                 .style("stroke-opacity", function(d){return opacity_link(d) + 0.3})
+                 .style("fill-opacity", function(d){return opacity_link(d) + 0.3});
             })
             .on("mouseout", function(d) {
                 link.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
-                .style("stroke-opacity", opacity_link);
+                .style("stroke-opacity", opacity_link)
+                .style("fill-opacity", opacity_link);
+            })
             .on("click", function(d) {
                 Shiny.onInputChange(el.id + '_clicked', d.name)
             });
@@ -228,7 +240,13 @@ HTMLWidgets.widget({
             .attr("height", function(d) { return d.dy; })
             .attr("width", sankey.nodeWidth())
             .style("fill", function(d) {
-                return d.color = color_node(d); })
+                if (d.targetLinks[0]) {
+                  return d.color = color_node(d); 
+                  return d.color = d3.rgb(d.targetLinks[0].source.color).darker(1); 
+                } else {
+                  return d.color = color_node(d); 
+                }
+                })
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
             .style("stroke-width", options.nodeStrokeWidth)
             .style("opacity", 0.9)
@@ -291,11 +309,5 @@ HTMLWidgets.widget({
           );
 
 
-        function dragmove(d) {
-            d3.select(this).attr("transform", "translate(" + d.x + "," +
-            (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
-            sankey.relayout();
-            link.attr("d", path);
-        }
     },
 });

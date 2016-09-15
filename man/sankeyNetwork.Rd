@@ -9,10 +9,11 @@ specifically for Sankey diagrams \url{http://bost.ocks.org/mike/sankey/}.
 }
 \usage{
 sankeyNetwork(Links, Nodes, Source, Target, Value, NodeID, NodeGroup = NodeID,
-  LinkGroup = NULL, units = "", colourScale = JS("d3.scale.category20()"),
-  fontSize = 7, fontFamily = NULL, nodeWidth = 15, nodePadding = 10,
-  nodeStrokeWidth = 1, margin = NULL, height = NULL, width = NULL, iterations = 32,
-  sinksRight = TRUE, zoom = FALSE)
+  LinkGroup = NULL, NodeDepth = NULL, units = "",
+  colourScale = JS("d3.scale.category20()"), fontSize = 7,
+  fontFamily = NULL, nodeWidth = 15, nodePadding = 10,
+  nodeStrokeWidth = 1, margin = NULL, height = NULL, width = NULL,
+  iterations = 32, sinksRight = TRUE, zoom = FALSE, bezierLink = TRUE)
 }
 \arguments{
 \item{Links}{a data frame object with the links between the nodes. It should
@@ -42,6 +43,9 @@ data frame. Must be 0-indexed.}
 
 \item{LinkGroup}{character string specifying the groups in the
 \code{Links}. Used to color the links in the network.}
+
+\item{NodeDepth}{character specifying a column in the \code{Nodes} data
+frame that specifies the 0-based ordering of the nodes along the x-axis.}
 
 \item{units}{character string describing physical units (if any) for Value}
 
@@ -79,6 +83,9 @@ right border of the plot.}
 
 \item{zoom}{logical value to enable (\code{TRUE}) or disable (\code{FALSE})
 zooming}
+
+\item{bezierLink}{logical values if the links should be rendered by 
+bezier curves, or just trapzoids.}
 }
 \description{
 Create a D3 JavaScript Sankey diagram

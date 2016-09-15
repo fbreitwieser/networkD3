@@ -5,6 +5,7 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       links = [],
+      bezierLink = false,
       sinksRight = true;
 
   sankey.nodeWidth = function(_) {
@@ -28,6 +29,12 @@ d3.sankey = function() {
   sankey.links = function(_) {
     if (!arguments.length) return links;
     links = _;
+    return sankey;
+  };
+
+  sankey.bezierLink = function(_) {
+    if (!arguments.length) return bezierLink;
+    bezierLink = _;
     return sankey;
   };
 
@@ -70,10 +77,20 @@ d3.sankey = function() {
           yt = d.target.y + d.ty + d.dy / 2;
 
       if (!d.cycleBreaker) {
-        return "M" + xs + "," + ys
-             + "C" + xsc + "," + ys
-             + " " + xtc + "," + yt
-             + " " + xt + "," + yt;
+        if (bezierLink) {
+          // BEZIER CURVE: does not always work
+          return "M" + xs + "," + ys
+               + "C" + xsc + "," + ys
+               + " " + xtc + "," + yt
+               + " " + xt + "," + yt;
+        } else {
+          // TRAPEZOID connection
+          return "M" + (xs) + "," + (ys - d.dy/2)
+               + "L" + (xs) + "," + (ys + d.dy/2)
+               + " " + (xt) + "," + (yt + d.dy/2)
+               + " " + (xt) + "," + (yt - d.dy/2) + " z";
+        }
+
       } else {
         var xdelta = (1.5 * d.dy + 0.05 * Math.abs(xs - xt));
         xsc = xs + xdelta;
