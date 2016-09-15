@@ -109,6 +109,26 @@ HTMLWidgets.widget({
             .sinksRight(options.sinksRight)
             .layout(options.iterations);
 
+
+        // thanks http://plnkr.co/edit/cxLlvIlmo1Y6vJyPs6N9?p=preview
+        //  http://stackoverflow.com/questions/22924253/adding-pan-zoom-to-d3js-force-directed
+        // allow force drag to work with pan/zoom drag
+        function dragstart(d) {
+          d3.event.sourceEvent.preventDefault();
+          d3.event.sourceEvent.stopPropagation();
+        }
+
+
+        function dragmove(d) {
+            d3.select(this).attr("transform", 
+                    "translate(" + 
+                      (d.x = Math.max(0, d3.event.x)) + "," +
+                       //d.x + "," +
+                      (d.y = Math.max(0, d3.event.y)) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+        }
+
         // select the svg element and remove existing children or previously set viewBox attribute
         var svg = d3.select(el).select("svg");
         svg.selectAll("*").remove();
@@ -131,6 +151,9 @@ HTMLWidgets.widget({
           d3.select(el).select("svg")
             .attr("pointer-events", "all")
             .call(zoom);
+
+          d3.select(el).select("svg").on("dblclick.zoom", null);
+
   
         } else {
           zoom.on("zoom", null);
@@ -180,7 +203,10 @@ HTMLWidgets.widget({
                                             d.x + "," + d.y + ")"; })
             .call(d3.behavior.drag()
             .origin(function(d) { return d; })
-            .on("dragstart", function() { this.parentNode.appendChild(this); })
+            .on("dragstart", function() { 
+                dragstart(this);
+                this.parentNode.appendChild(this); 
+            })
             .on("drag", dragmove))
             .on("mouseover", function(d) {
                 link.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
