@@ -73,7 +73,7 @@ HTMLWidgets.widget({
         
         var color_node = function color_node(d){
           if (d.group){
-            return color(d.group.replace(/ .*/, ""));
+            return color(d.group);
           } else {
             return "#cccccc";
           }
@@ -81,15 +81,15 @@ HTMLWidgets.widget({
 
         var color_link = function color_link(d){
           if (d.group){
-            return color(d.group.replace(/ .*/, ""));
+            return color(d.group);
           } else {
-            return "#000000";
+            return  "#000000";
           }
         }
 
         var opacity_link = function opacity_link(d){
           if (d.group){
-            return 0.7;
+            return 0.5;
           } else {
             return 0.2;
           }
