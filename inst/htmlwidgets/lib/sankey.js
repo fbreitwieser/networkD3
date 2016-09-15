@@ -129,6 +129,9 @@ d3.sankey = function() {
     });
   }
 
+  var max_depth = 0
+  var summed_str_length = [0];
+
   // Iteratively assign the breadth (x-position) for each node.
   // Nodes are assigned the maximum breadth of incoming neighbors plus one;
   // nodes with no incoming links are assigned breadth zero, while
@@ -171,14 +174,39 @@ d3.sankey = function() {
             node.x = node.depth;
         });
     }
+    
+    // calculate maximum string lengths at each depth
+    max_depth = d3.max(nodes, function(d) { return(d.x); } ) + 1;
+    var max_str_length = new Array(max_depth);
+    nodes.forEach(function(node) {
+        if (typeof max_str_length[node.x] == "undefined" || node.name.length > max_str_length[node.x]) {
+            max_str_length[node.x] = node.name.length;
+        }
+
+        // make a path to the beginning for vertical ordering
+        node.path = node.name;
+        nn = node
+        while (nn.targetLinks.length) {
+            nn = nn.targetLinks[0].source
+            //for (depth = nn.depth - 1; nn_source.depth > depth; --depth) {
+            //    node.path = nn.name + ";" + node.path;
+            //}
+            //nn = nn_source
+            node.path = nn.name + ";" + node.path;
+        }
+
+    });
+
+    for (i=1; i<max_depth; ++i) {
+        summed_str_length[i] = summed_str_length[i-1] + max_str_length[i-1] * 6 + nodeWidth + nodePadding;
     }
 
     // Optionally move pure sinks always to the right, and scale node breadths
     if (sinksRight) {
-      moveSinksRight(x);
-      scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
+      moveSinksRight(max_depth);
+      scaleNodeBreadths((size[0] - nodeWidth) / (max_depth - 1));
     } else {
-      scaleNodeBreadths((size[0] - nodeWidth) / x);
+      scaleNodeBreadths((size[0] - nodeWidth) / max_depth);
     }
 
     
@@ -263,7 +291,8 @@ d3.sankey = function() {
 
   function scaleNodeBreadths(kx) {
     nodes.forEach(function(node) {
-      node.x *= kx;
+      //node.x *= Math.max(minLinkWidth,Math.min(kx, maxLinkWidth));
+      node.x = summed_str_length[node.x];
     });
   }
 
