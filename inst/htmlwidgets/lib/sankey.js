@@ -134,34 +134,43 @@ d3.sankey = function() {
   // nodes with no incoming links are assigned breadth zero, while
   // nodes with no outgoing links are assigned the maximum breadth.
   function computeNodeBreadths() {
-    var remainingNodes = nodes,
-        nextNodes,
-        x = 0;
+ 
 
-    // Work from left to right.
-    // Keep updating the breath (x-position) of nodes that are target of recently updated nodes.
-    while (remainingNodes.length && x < nodes.length) {
-      nextNodes = [];
-      remainingNodes.forEach(function(node) {
-        node.x = x;
-        node.dx = nodeWidth;
-        node.sourceLinks.forEach(function(link) {
-          if (nextNodes.indexOf(link.target) < 0 && !link.cycleBreaker) {
-            nextNodes.push(link.target);
-          }
+    if (typeof nodes[0].depth == "undefined") {
+      var remainingNodes = nodes,
+          x = 0,
+          nextNodes;
+      // Work from left to right.
+      // Keep updating the breath (x-position) of nodes that are target of recently updated nodes.
+      while (remainingNodes.length && x < nodes.length) {
+        nextNodes = [];
+        remainingNodes.forEach(function(node) {
+          node.x = x;
+          node.depth = x;
+  
+          node.sourceLinks.forEach(function(link) {
+            if (nextNodes.indexOf(link.target) < 0 && !link.cycleBreaker) {
+              nextNodes.push(link.target);
+            }
+          });
         });
-      });
-      if (nextNodes.length == remainingNodes.length) {
-        // There must be a cycle here. Let's search for a link that breaks it.
-        findAndMarkCycleBreaker(nextNodes);
-        // Start over.
-        // TODO: make this optional?
-        return computeNodeBreadths();
+        if (nextNodes.length == remainingNodes.length) {
+          // There must be a cycle here. Let's search for a link that breaks it.
+          findAndMarkCycleBreaker(nextNodes);
+          // Start over.
+          // TODO: make this optional?
+          return computeNodeBreadths();
+        }
+        else {
+          remainingNodes = nextNodes;
+          ++x;
+        }
       }
-      else {
-        remainingNodes = nextNodes;
-        ++x;
-      }
+    } else {
+        nodes.forEach(function(node) {
+            node.x = node.depth;
+        });
+    }
     }
 
     // Optionally move pure sinks always to the right, and scale node breadths
