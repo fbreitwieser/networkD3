@@ -237,7 +237,7 @@ HTMLWidgets.widget({
                 " " + options.units; });
 
         node.append("text")
-            .attr("x", -6)
+            .attr("x", - 1)
             .attr("y", function(d) { return d.dy / 2; })
             .attr("dy", ".35em")
             .attr("text-anchor", "end")
@@ -246,7 +246,7 @@ HTMLWidgets.widget({
             .style("font-size", options.fontSize + "px")
             .style("font-family", options.fontFamily ? options.fontFamily : "inherit")
             .filter(function(d) { return d.x < width / 2 || !options.sinksRight; })
-            .attr("x", 6 + sankey.nodeWidth())
+            .attr("x", 1 + sankey.nodeWidth())
             .attr("text-anchor", "start");
 
 
